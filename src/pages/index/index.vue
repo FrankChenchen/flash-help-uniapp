@@ -4,10 +4,13 @@
     <view class="text-area">
       <text class="title">{{ title }}</text>
     </view>
+
+    <tabbarVue></tabbarVue>
   </view>
 </template>
 
 <script setup lang="ts">
+import tabbarVue from '@/components/tabbar/tabbar.vue';
 import { ref } from 'vue'
 const title = ref('Hello')
 </script>

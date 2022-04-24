@@ -15,14 +15,14 @@ const requestWithToken = (
   data: any
 ): Promise<any> => {
   let promise = new Promise((resolve, reject) => {
-    let toekn = "Bearer " + uni.getStorageSync("token");
+    let toekn = uni.getStorageSync("token");
 
     uni.request({
       url: baseUrl + url,
       method: method,
       data: data,
       header: {
-        Authorization: toekn,
+        jctoken: toekn,
       },
       dataType: "json",
       success: (result) => {
