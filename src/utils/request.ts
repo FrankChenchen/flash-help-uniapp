@@ -27,12 +27,13 @@ const requestWithToken = (
       dataType: "json",
       success: (result) => {
         let data = result.data as R;
-        if (data.code == 500) {
+        if (data.code >= 400) {
           uni.showToast({
             title: data.msg,
             icon: "none",
           });
-        } else if (data.code === 403) {
+        }
+        if (data.code === 403) {
           uni.navigateTo({ url: "/pages/login/login" });
         } else {
           resolve(data.data);

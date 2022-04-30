@@ -10,4 +10,11 @@ onHide(() => {
   console.log("App Hide");
 });
 </script>
-<style></style>
+<style lang="scss">
+:deep(.uni-easyinput__content-input) {
+  font-size: 30rpx;
+}
+:deep(.uni-easyinput__content-textarea) {
+  font-size: 30rpx !important;
+}
+</style>

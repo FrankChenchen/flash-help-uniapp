@@ -38,6 +38,7 @@ const switchPage = (url: string) => {
 <style lang="scss" scoped>
 .content {
   padding: 64rpx;
+  margin-top: 144rpx;
   .user-info-section {
     display: flex;
     align-items: center;

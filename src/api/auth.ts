@@ -8,7 +8,7 @@ export const wechatLogin = function () {
     success: (res) => {
       let params = {
         code: res.code,
-        serviceName: "flash-help",
+        serviceName: "flash-task",
       };
       requestWithToken("/security/auth?type=wechat", "POST", params).then(
         (res2) => {

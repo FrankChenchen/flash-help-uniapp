@@ -35,7 +35,7 @@ const tabs = [
     isMid: false,
   },
   {
-    path: "/pages/index/index",
+    path: "/pages/task/task-publish",
     icon: "/static/icons/plus.png",
     name: "发布",
     isMid: true,
@@ -55,15 +55,14 @@ const switchTab = (tab: typeof tabs[0]) => {
   console.log(store.active);
   uni.navigateTo({ url: tab.path });
 };
-
 </script>
 <style lang="scss" scoped>
 .tarbar {
   position: fixed;
   z-index: 100;
   bottom: 200rpx;
-  left: 20rpx;
-  right: 20rpx;
+  left: 60rpx;
+  right: 60rpx;
   .tabs {
     position: absolute;
     display: flex;
@@ -75,7 +74,7 @@ const switchTab = (tab: typeof tabs[0]) => {
       position: relative;
       .icon {
         image {
-          width: 70rpx;
+          width: 55rpx;
         }
       }
     }
@@ -83,16 +82,16 @@ const switchTab = (tab: typeof tabs[0]) => {
     .mid-tab {
       position: absolute;
       left: -70rpx;
-      bottom: -50rpx;
-      height: 140rpx;
-      width: 140rpx;
+      bottom: -40rpx;
+      height: 120rpx;
+      width: 120rpx;
       .mid-icon {
         margin: 20rpx;
         border-radius: 50rpx;
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #ffc300;
+        background-color: rgba($color: $uni-theme-color, $alpha: 1);
         image {
           width: 100rpx;
         }
@@ -103,7 +102,6 @@ const switchTab = (tab: typeof tabs[0]) => {
     z-index: -1;
     position: absolute;
     width: 100%;
-    left: 13rpx;
     top: -60rpx;
   }
 }
