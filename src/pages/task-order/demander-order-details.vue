@@ -1,0 +1,374 @@
+<template>
+  <view class="main">
+    <view class="detailsHeader">
+      <view class="detailsBox">
+        <view class="pay-info" v-if="order.paymentTime">
+          <view>
+            <image src="../../static/icons/play_success.png"></image>
+          </view>
+          <view class="pay-i-text">
+            <view>支付成功</view>
+            <view>{{ contents[order.orderStatus] }}</view>
+          </view>
+        </view>
+        <view class="pay-fail" v-else>
+          <view>支付未完成，请支付</view>
+          <view>15分钟未支付，订单将自动取消</view>
+        </view>
+        <view class="order-card-section">
+          <view class="pay-line"></view>
+          <view class="pay-lines"></view>
+          <view class="pay-details-card">
+            <view class="details-i-t">
+              <image src="../../static/logo.png" mode=""></image>
+              <text>华大快帮</text>
+            </view>
+            <view class="line"></view>
+            <view class="orde-details">
+              <view class="order-item">
+                <view>订单编号</view>
+                <view>{{ order.id }}</view>
+              </view>
+              <view class="order-item">
+                <view>下单时间</view>
+                <view>{{ order.createTime }}</view>
+              </view>
+              <view class="order-item">
+                <view>照片</view>
+                <view>
+                  <uploadVue ref="upload" :disable="true"></uploadVue
+                ></view>
+              </view>
+              <view class="order-item">
+                <view>任务内容</view>
+                <view class="word-content">
+                  {{ order.taskOrder.task.detailsJson.content }}
+                </view>
+              </view>
+              <view class="details-footer">
+                <view>支付:</view>
+                <view>
+                  ¥
+                  <text>{{ order.finalPrice }}￥</text>
+                </view>
+              </view>
+            </view>
+
+            <view class="btns">
+              <view class="btn" v-if="order.orderStatus == '待支付'">
+                <button class="btn1" @click="cancel">取消订单</button>
+              </view>
+              <view
+                class="btn"
+                v-if="
+                  order.orderStatus == '待确认' || order.orderStatus == '已完成'
+                "
+              >
+                <button class="btn3" @click="logisticsShow">查看物流</button>
+              </view>
+              <view class="btn" v-if="order.orderStatus == '待支付'">
+                <button class="btn2" @click="pay">
+                  {{ buttonTips[order.orderStatus] }}
+                </button>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script lang="ts" setup>
+import { reactive, ref } from "vue";
+import { BaseOrder, PayParams } from "@/typings";
+import { cancelOrder, confirmOrder, getOrderById, payOrder } from "@/api/order";
+import { onLoad } from "@dcloudio/uni-app";
+import uploadVue from "@/components/upload/upload.vue";
+const contents = {
+  待发货: "对方正在加速完成任务",
+  待确认: "您的任务已经完成，请确认",
+  已完成: "您的订单已完结，欢迎继续使用",
+};
+const buttonTips = {
+  待支付: "支付",
+  待发货: "发货",
+  待确认: "确认",
+};
+let upload = ref<InstanceType<typeof uploadVue>>();
+let order = ref<BaseOrder>({} as BaseOrder);
+const getOrder = (id: string) => {
+  getOrderById(id).then((res: BaseOrder) => {
+    res.taskOrder = JSON.parse(res.priceDetails);
+    res.taskOrder.task.detailsJson = JSON.parse(res.taskOrder.task.details);
+    if (upload.value) {
+      console.log(res.taskOrder.task);
+      upload.value?.setFiles(res.taskOrder.task.detailsJson.imgs);
+    }
+    order.value = res;
+  });
+};
+const logisticsShow = () => {
+  uni.navigateToMiniProgram({
+    appId: "wx6885acbedba59c14",
+    path: `pages/result/result?nu=${order.value.logisticsNo}&com=&querysource=third_xcx`,
+  });
+};
+const confrim = () => {
+  confirmOrder(order.value.id).then((res) => {
+    if (res == true) {
+      uni.showToast({
+        title: "确认成功",
+        icon: "success",
+      });
+    }
+  });
+};
+const cancel = () => {
+  cancelOrder(order.value.id).then((res) => {
+    if (res == true) {
+      uni.showToast({
+        title: "取消成功",
+        icon: "success",
+      });
+      setTimeout(() => {
+        uni.navigateBack({});
+      }, 500);
+    }
+  });
+};
+const pay = () => {
+  payOrder(order.value.taskOrder.id).then((res: string) => {
+    let result: PayParams = JSON.parse(res);
+    if (result.package) {
+      uni.requestPayment({
+        provider: "wxpay",
+        signType: result.signType,
+        timeStamp: result.timeStamp,
+        nonceStr: result.nonceStr,
+        package: result.package,
+        paySign: result.paySign,
+        orderInfo: "",
+        success: () => {
+          getOrder(order.value.taskOrder.id);
+        },
+      });
+    }
+  });
+};
+onLoad((option) => {
+  let ops = option as Record<string, string>;
+  if (option != undefined) {
+    getOrder(ops.id);
+  }
+});
+</script>
+
+<style lang="scss" scoped>
+.detailsBox {
+  width: 100%;
+  height: 337rpx;
+  background: url(../../static/icons/bg.png) no-repeat;
+  background-size: 100% 100%;
+  position: absolute;
+
+  .pay-info {
+    display: flex;
+    padding: 0rpx 0rpx 0rpx 50rpx;
+    view:first-child {
+      image {
+        width: 150rpx;
+        height: 150rpx;
+      }
+    }
+    .pay-i-text {
+      padding-top: 10rpx;
+
+      view:first-child {
+        font-size: 40rpx;
+        font-weight: bold;
+        color: #ffffff;
+      }
+
+      view:last-child {
+        font-size: 26rpx;
+        font-weight: 400;
+        color: #ffffff;
+        margin-top: 8rpx;
+      }
+    }
+  }
+  .pay-fail {
+    margin: 20rpx 0 20rpx 50rpx;
+    view:first-child {
+      font-size: 40rpx;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    view:last-child {
+      font-size: 26rpx;
+      font-weight: 400;
+      color: #ffffff;
+      margin-top: 8rpx;
+    }
+  }
+  .order-card-section {
+    position: relative;
+
+    .pay-line {
+      position: absolute;
+      width: 672rpx;
+      height: 24rpx;
+      background: #047dd9;
+      border-radius: 7rpx;
+      left: 40rpx;
+    }
+
+    .pay-lines {
+      position: absolute;
+      width: 614rpx;
+      height: 24rpx;
+      background: url(../../static/icons/c1a794c7bd5e28075c5cd47bb6ad715.png)
+        no-repeat;
+      background-size: 100% 100%;
+      left: 68rpx;
+      top: 15rpx;
+      z-index: 99;
+    }
+
+    .pay-details-card {
+      position: absolute;
+      width: 637rpx;
+      background: url(../../static/icons/bg2.png) no-repeat;
+      background-size: 100% 100%;
+      left: 58rpx;
+      margin-top: 10rpx;
+      padding-bottom: 50rpx;
+      .details-i-t {
+        display: flex;
+        align-items: center;
+        padding: 40rpx 0rpx 24rpx 24rpx;
+
+        image {
+          width: 68rpx;
+          height: 69rpx;
+        }
+
+        text {
+          font-size: 31rpx;
+          font-weight: bold;
+          color: #333333;
+          opacity: 0.9;
+          margin-left: 10px;
+        }
+      }
+
+      .orde-details {
+        padding: 38rpx;
+
+        .order-item {
+          margin-top: 32rpx;
+          display: flex;
+          view:first-child {
+            width: 140rpx;
+            font-size: 26rpx;
+            color: #999999;
+            flex-shrink: 0;
+          }
+
+          view:last-child {
+            font-size: 26rpx;
+            color: #000000;
+          }
+        }
+      }
+      .product-price {
+        margin-top: 32rpx;
+        display: flex;
+        align-items: flex-start;
+        .label {
+          width: 140rpx;
+          font-size: 26rpx;
+          color: #999999;
+        }
+        .product-wrapper {
+          font-size: 26rpx;
+          color: #000000;
+        }
+      }
+      .details-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-right: 40rpx;
+        margin-top: 8rpx;
+        height: 66rpx;
+
+        view:first-child {
+          font-size: 26rpx;
+          font-weight: 500;
+          color: #333333;
+          margin-right: 15rpx;
+          line-height: 78rpx;
+        }
+
+        view:last-child {
+          font-size: 33rpx;
+          font-weight: 500;
+          color: #ff471f;
+          line-height: 66rpx;
+
+          text {
+            font-size: 51rpx;
+            font-weight: 500;
+            color: #ff471f;
+            line-height: 66rpx;
+          }
+        }
+      }
+    }
+
+    .btns {
+      position: relative;
+      // position: fixed;
+      // bottom: 105rpx;
+      margin: 45rpx;
+      // left: 0;
+      // right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      .btn {
+        display: inline;
+        margin: 20rpx;
+
+        button {
+          font-size: 29rpx;
+          color: #ffffff;
+          background: #07c160;
+          border-radius: 6rpx;
+          line-height: 88rpx;
+        }
+        .btn1 {
+          background: #ffc300 !important;
+        }
+        .btn3 {
+          background: #10aeff;
+        }
+      }
+    }
+  }
+}
+
+.template-cover {
+  width: 100rpx;
+  height: 100rpx;
+}
+.word-content {
+  height: 200rpx;
+  overflow: scroll;
+  // text-overflow: ellipsis;
+  // white-space: nowrap;
+  word-break: break-all;
+}
+</style>

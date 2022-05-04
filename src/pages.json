@@ -57,6 +57,24 @@
       "style": {
         "navigationBarTitleText": "编辑地址"
       }
+    },
+    {
+      "path": "pages/task-order/demander-order-list",
+      "style": {
+        "navigationBarTitleText": "我的订单"
+      }
+    },
+    {
+      "path": "pages/task-order/acceptor-order-list",
+      "style": {
+        "navigationBarTitleText": "我的接单"
+      }
+    },
+    {
+      "path": "pages/task-order/demander-order-details",
+      "style": {
+        "navigationBarTitleText": "订单详情"
+      }
     }
   ],
   "globalStyle": {

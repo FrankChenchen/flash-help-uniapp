@@ -60,9 +60,17 @@
           </view>
         </view>
       </view>
-      <view class="bottom">
+      <view class="center">
         <view class="title">{{ task.detailsJson.content }}</view>
         <view class="content"></view>
+      </view>
+      <view class="bottom">
+        <view class="price">￥{{ task.price }}</view>
+        <view>
+          <button plain="true" class="accept-btn" @click="acceptTask(task)">
+            我要接受
+          </button>
+        </view>
       </view>
     </view>
   </view>
@@ -70,9 +78,10 @@
 </template>
 
 <script setup lang="ts">
+import { createOrder } from "@/api/order";
 import { listTask } from "@/api/task";
 import tabbarVue from "@/components/tabbar/tabbar.vue";
-import { BaseSearch, Task } from "@/typings";
+import { BaseSearch, Task, TaskOrder } from "@/typings";
 import { onReachBottom } from "@dcloudio/uni-app";
 import { reactive, ref } from "vue";
 
@@ -105,6 +114,22 @@ onReachBottom(() => {
 const confirm = (keyword: any) => {
   console.log(keyword);
 };
+const acceptTask = (task: Task) => {
+  let taskOrder = {
+    taskId: task.id,
+    baseOrder: {
+      discountPrice: 0,
+      finalPrice: 0,
+      originPrice: 0,
+      paymentMethod: "wechat",
+    },
+  } as TaskOrder;
+  createOrder(taskOrder).then((res: TaskOrder) => {
+    if (res.id) {
+      uni.showToast({ title: "接单成功，请联系需求者沟通" });
+    }
+  });
+};
 const city = ref("泉州");
 </script>
 
@@ -136,10 +161,28 @@ const city = ref("泉州");
       }
     }
   }
-  .bottom {
+  .center {
     padding: 30rpx 0;
     color: rgba($color: #000000, $alpha: 0.9);
+  }
+  .bottom {
+    padding-bottom: 30rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-bottom: 1rpx solid rgba($color: #000000, $alpha: 0.05);
+    .price {
+      font-size: 32rpx;
+      color: rgba($color: #ff0000, $alpha: 1);
+    }
+    .accept-btn {
+      padding: 0 !important;
+      font-size: 22rpx;
+      color: rgba($color: #000000, $alpha: 0.7);
+      width: 110rpx;
+      border: 0;
+      background-color: rgba($color: $uni-theme-color, $alpha: 1);
+    }
   }
 }
 .navbar {

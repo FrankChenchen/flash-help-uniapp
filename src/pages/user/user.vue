@@ -19,6 +19,30 @@
       </view>
     </view>
     <view class="divider"> 服务中心 </view>
+    <view class="functions">
+      <view
+        class="function"
+        @tap="switchPage('/pages/task-order/demander-order-list')"
+      >
+        <image
+          class="icon"
+          mode="widthFix"
+          src="@/static/icons/file-done.png"
+        ></image>
+        <view class="title">我的订单</view>
+      </view>
+      <view
+        class="function"
+        @tap="switchPage('/pages/task-order/acceptor-order-list')"
+      >
+        <image
+          class="icon"
+          mode="widthFix"
+          src="@/static/icons/order-accept.png"
+        ></image>
+        <view class="title">我的接单</view>
+      </view>
+    </view>
     <Tabbar></Tabbar>
   </view>
 </template>
@@ -44,8 +68,8 @@ const switchPage = (url: string) => {
     align-items: center;
     .avatar {
       border-radius: 50%;
-      width: 96rpx;
-      height: 96rpx;
+      width: 110rpx;
+      height: 110rpx;
       margin-right: 24rpx;
     }
     .nickname {
