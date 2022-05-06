@@ -1,18 +1,18 @@
 <template>
   <view class="main">
     <view class="detailsHeader">
-      <view class="detailsBox" v-if="order.baseOrder">
+      <view class="detailsBox" v-if="order.id">
         <view class="pay-info" v-if="order.baseOrder.paymentTime">
           <view>
             <image src="../../static/icons/play_success.png"></image>
           </view>
           <view class="pay-i-text">
-            <view>支付成功</view>
+            <view>对方已支付</view>
             <view>{{ contents[order.baseOrder.orderStatus] }}</view>
           </view>
         </view>
         <view class="pay-fail" v-else>
-          <view>支付未完成，请支付</view>
+          <view>对方未支付，等待支付</view>
           <view>15分钟未支付，订单将自动取消</view>
         </view>
         <view class="order-card-section">
@@ -67,52 +67,65 @@
               >
                 <button class="btn3" @click="logisticsShow">查看物流</button>
               </view>
-              <view class="btn" v-if="order.baseOrder.orderStatus == '待支付'">
-                <button class="btn2" @click="pay">支付订单</button>
-              </view>
-              <view class="btn" v-if="order.baseOrder.orderStatus == '待确认'">
-                <button class="btn2" @click="confrim">确认订单</button>
+              <view class="btn" v-if="order.baseOrder.orderStatus == '待发货'">
+                <button class="btn2" @click="open">发货</button>
               </view>
             </view>
           </view>
         </view>
       </view>
     </view>
+    <uni-popup ref="popup" type="dialog">
+      <uni-popup-dialog
+        mode="input"
+        message="成功消息"
+        :duration="2000"
+        :before-close="true"
+        @close="close"
+        @confirm="confirm"
+      ></uni-popup-dialog>
+    </uni-popup>
   </view>
 </template>
 
 <script lang="ts" setup>
-import { nextTick, onMounted, onUpdated, ref } from "vue";
-import { PayParams, TaskOrder } from "@/typings";
-import { cancelOrder, confirmOrder, getOrderById, payOrder } from "@/api/order";
-import { onLoad, onReady } from "@dcloudio/uni-app";
+import { onMounted, ref } from "vue";
+import { TaskOrder } from "@/typings";
+import { cancelOrder, getOrderById, shipOrder } from "@/api/order";
+import { onLoad } from "@dcloudio/uni-app";
 import uploadVue from "@/components/upload/upload.vue";
 const contents = {
   待发货: "对方正在加速完成任务",
   待确认: "您的任务已经完成，请确认",
   已完成: "您的订单已完结，欢迎继续使用",
 };
-const buttonTips = {
-  待支付: "支付",
-  待发货: "发货",
-  待确认: "确认",
+// 发货对话框
+let popup = ref();
+const open = () => {
+  if (popup) {
+    popup.value.open();
+  }
 };
-let upload = ref<InstanceType<typeof uploadVue>>();
+const close = () => {
+  if (popup) {
+    popup.value.close();
+  }
+};
+const confirm = (value: string) => {
+  ship(value);
+  close();
+};
+// 等待加载，发货，取消
 let order = ref({} as TaskOrder);
+let upload = ref<InstanceType<typeof uploadVue>>();
 const getOrder = (id: string) => {
   getOrderById(id).then((res: TaskOrder) => {
     res.task.detailsJson = JSON.parse(res.task.details);
     order.value = res;
   });
 };
-const logisticsShow = () => {
-  uni.navigateToMiniProgram({
-    appId: "wx6885acbedba59c14",
-    path: `pages/result/result?nu=${order.value.baseOrder.logisticNo}&com=&querysource=third_xcx`,
-  });
-};
-const confrim = () => {
-  confirmOrder(order.value.id).then((res) => {
+const ship = (logisticNo: string) => {
+  shipOrder(order.value.id, logisticNo).then((res) => {
     if (res == true) {
       uni.showToast({
         title: "确认成功",
@@ -134,25 +147,13 @@ const cancel = () => {
     }
   });
 };
-const pay = () => {
-  payOrder(order.value.id).then((res: string) => {
-    let result: PayParams = JSON.parse(res);
-    if (result.package) {
-      uni.requestPayment({
-        provider: "wxpay",
-        signType: result.signType,
-        timeStamp: result.timeStamp,
-        nonceStr: result.nonceStr,
-        package: result.package,
-        paySign: result.paySign,
-        orderInfo: "",
-        success: () => {
-          getOrder(order.value.id);
-        },
-      });
-    }
+const logisticsShow = () => {
+  uni.navigateToMiniProgram({
+    appId: "wx6885acbedba59c14",
+    path: `pages/result/result?nu=${order.value.baseOrder.logisticNo}&com=&querysource=third_xcx`,
   });
 };
+
 onLoad((option) => {
   let ops = option as Record<string, string>;
   if (option != undefined) {

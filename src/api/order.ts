@@ -10,8 +10,8 @@ export const payOrder = (id: string) => {
 export const confirmOrder = (id: string) => {
   return requestWithToken("/help/task-order/confirm", "GET", { id });
 };
-export const shipOrder = (id: string, logisticsNo: string) => {
-  return requestWithToken("/help/task-order/ship", "GET", { id, logisticsNo });
+export const shipOrder = (id: string, logisticNo: string) => {
+  return requestWithToken("/help/task-order/ship", "GET", { id, logisticNo });
 };
 export const cancelOrder = (id: string) => {
   return requestWithToken("/help/task-order/cancel", "GET", { id });

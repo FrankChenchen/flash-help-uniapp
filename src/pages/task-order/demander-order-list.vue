@@ -3,16 +3,16 @@
     <view
       class="main-order-section"
       :key="index"
-      v-for="(order, index) in computedOrders"
+      v-for="(order, index) in orders"
     >
       <view class="order-top">
         <view
           class="logisticsNo"
-          v-if="order.logisticsNo"
-          @click="copy(order.logisticsNo)"
+          v-if="order.baseOrder.logisticNo"
+          @click="copy(order.baseOrder.logisticNo)"
         >
           <view class="ordersn">
-            {{ "物流单号:" + order.logisticsNo }}
+            {{ "物流单号:" + order.baseOrder.logisticNo }}
           </view>
           <image class="icon" src="@/static/icons/order-icon.png"> </image>
         </view>
@@ -20,12 +20,11 @@
           class="finish"
           @click="
             swtichPage(
-              '/pages/task-order/demander-order-details?id=' +
-                order.taskOrder.id
+              '/pages/task-order/demander-order-details?id=' + order.id
             )
           "
         >
-          <view class="text">{{ order.orderStatus }}</view>
+          <view class="text">{{ order.baseOrder.orderStatus }}</view>
           <uni-icons class="right-arrow" type="right" size="20"></uni-icons>
         </view>
       </view>
@@ -38,23 +37,23 @@
 
         <view class="info">
           <text class="user-info">
-            {{ order.taskOrder.task.detailsJson.content }}
+            {{ order.task.detailsJson.content }}
           </text>
           <text class="address-info">
             {{
-              order.taskOrder.address.address +
+              order.address.address +
               " " +
-              order.taskOrder.address.phoneNumber
+              order.address.phoneNumber
             }}
           </text>
           <div class="price-wrapper">
-            实付款：<text class="price">{{ order.finalPrice + "￥" }}</text>
+            实付款：<text class="price">{{ order.baseOrder.finalPrice + "￥" }}</text>
           </div>
         </view>
       </view>
       <view class="order-bottom">
         <text class="create-time">
-          {{ order.createTime }}
+          {{ order.baseOrder.createTime }}
         </text>
       </view>
     </view>
@@ -62,13 +61,13 @@
 </template>
 <script lang="ts">
 import { listOrderForDemander } from "@/api/order";
-import { BaseOrder, BaseSearch, TaskOrder } from "@/typings";
+import { BaseSearch, TaskOrder } from "@/typings";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   data() {
     return {
-      orders: [] as BaseOrder[],
+      orders: [] as TaskOrder[],
       searchVO: {
         pageNum: 1,
         pageSize: 10,
@@ -86,22 +85,7 @@ export default defineComponent({
   onLoad() {
     this.loadOrder();
   },
-  computed: {
-    computedOrders() {
-      let list: BaseOrder[] = this.orders.map((res) => {
-        //旧的数据已经转换过了，不需要重新parse
-        try {
-          res.taskOrder = JSON.parse(res.priceDetails);
-          res.taskOrder.task.detailsJson = JSON.parse(
-            res.taskOrder.task.details
-          );
-          console.log(res);
-        } catch (err) {}
-        return res;
-      });
-      return list;
-    },
-  },
+
   methods: {
     copy(value: any) {
       uni.setClipboardData({
@@ -115,8 +99,13 @@ export default defineComponent({
           if (res.pageSize > res.size) {
             this.finish = true;
           }
+          let orderList = res.list as TaskOrder[];
+          let orderList2 = orderList.map((order) => {
+            order.task.detailsJson = JSON.parse(order.task.details);
+            return order;
+          });
           this.searchVO.pageNum++;
-          this.orders.push(...res.list);
+          this.orders.push(...orderList2);
         });
       }
     },

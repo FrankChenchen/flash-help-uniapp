@@ -27,7 +27,7 @@ export interface BaseOrder {
   priceDetails: string;
   type: string;
   remark: string;
-  logisticsNo: string;
+  logisticNo: string;
   serviceName: string;
   updateTime: string;
   createTime: string;
