@@ -6,7 +6,7 @@
       mode="widthFix"
     ></image>
     <view class="tabs">
-      <view class="tab" v-for="tab in tabs" @click="switchTab(tab)">
+      <view class="tab" v-for="tab in tabs" @click="switchTab(tab)" :key="tab.path">
         <view class="mid-tab" v-if="tab.isMid">
           <view class="mid-icon">
             <image :src="tab.icon" mode="widthFix"></image>
@@ -49,11 +49,13 @@ const tabs = [
   },
 ];
 const store = tabbarStore();
-console.log(store.active);
 const switchTab = (tab: typeof tabs[0]) => {
-  store.changeActive(tab.name);
-  console.log(store.active);
-  uni.navigateTo({ url: tab.path });
+  if (tab.isMid) {
+    uni.navigateTo({ url: tab.path });
+  } else {
+    store.changeActive(tab.name);
+    uni.redirectTo({ url: tab.path });
+  }
 };
 </script>
 <style lang="scss" scoped>

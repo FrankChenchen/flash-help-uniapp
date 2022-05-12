@@ -113,7 +113,7 @@ const logisticsShow = () => {
 };
 const confrim = () => {
   confirmOrder(order.value.id).then((res) => {
-    if (res == true) {
+    if (res.operation == "success") {
       uni.showToast({
         title: "确认成功",
         icon: "success",
@@ -123,7 +123,7 @@ const confrim = () => {
 };
 const cancel = () => {
   cancelOrder(order.value.id).then((res) => {
-    if (res == true) {
+    if (res.operation == "success") {
       uni.showToast({
         title: "取消成功",
         icon: "success",

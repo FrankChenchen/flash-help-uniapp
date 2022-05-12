@@ -1,12 +1,12 @@
 <template>
   <view class="navbar">
     <uni-nav-bar>
-      <block slot="left">
+      <block v-slot:left>
         <view class="city">
           <view>
             <text class="uni-nav-bar-text">{{ city }}</text>
           </view>
-          <uni-icons type="arrowdown" color="#666" size="18" />
+          <uni-icons type="location" color="#666" size="20" />
         </view>
       </block>
       <view class="mid">
@@ -26,8 +26,17 @@
           />
         </view>
       </view>
-      <block slot="right">
-        <view class="city"> 搜索 </view>
+      <block v-slot:right>
+        <view class="message" @click="switchPage('/pages/chat/chat-session')">
+          <uni-badge
+            class="uni-badge-left-margin"
+            absolute="rightTop"
+            :offset="[2, 2]"
+            :text="checkNum"
+          >
+            <image src="@/static/icons/message.png"></image>
+          </uni-badge>
+        </view>
       </block>
     </uni-nav-bar>
   </view>
@@ -58,6 +67,12 @@
               ></uni-dateformat>
             </view>
           </view>
+          <view
+            class="chat"
+            @click="switchPage('/pages/chat/chat?id=' + task.user.id)"
+          >
+            <uni-icons type="chat" size="22"></uni-icons>
+          </view>
         </view>
       </view>
       <view class="center">
@@ -82,16 +97,15 @@ import { createOrder } from "@/api/order";
 import { listTask } from "@/api/task";
 import tabbarVue from "@/components/tabbar/tabbar.vue";
 import { BaseSearch, Task, TaskOrder } from "@/typings";
-import { onReachBottom } from "@dcloudio/uni-app";
+import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { reactive, ref } from "vue";
-
+import { getCheckNum } from "@/api/chat";
 let finish = ref(false);
 let searchVO = reactive({
   pageSize: 10,
   pageNum: 1,
   keyword: "",
 } as BaseSearch);
-
 let taskList = ref<Task[]>([]);
 const loadTask = () => {
   if (!finish.value) {
@@ -107,13 +121,15 @@ const loadTask = () => {
     });
   }
 };
-loadTask();
+
 onReachBottom(() => {
   loadTask();
 });
+
 const confirm = (keyword: any) => {
   console.log(keyword);
 };
+
 const acceptTask = (task: Task) => {
   let taskOrder = {
     taskId: task.id,
@@ -130,6 +146,21 @@ const acceptTask = (task: Task) => {
     }
   });
 };
+
+const switchPage = (url: string) => {
+  uni.navigateTo({ url });
+};
+
+let checkNum = ref(0);
+const getNum = () => {
+  getCheckNum().then((res) => {
+    checkNum.value = res;
+  });
+};
+onLoad(() => {
+  loadTask();
+  getNum();
+});
 const city = ref("泉州");
 </script>
 
@@ -148,6 +179,7 @@ const city = ref("泉州");
           margin-right: 20rpx;
         }
         .info {
+          flex: 2;
           .nickname {
             font-size: 30rpx;
             color: rgba($color: #000000, $alpha: 0.9);
@@ -157,6 +189,11 @@ const city = ref("泉州");
             font-size: 24rpx;
             color: rgba($color: #000000, $alpha: 0.5);
           }
+        }
+        .chat {
+          flex-shrink: 0;
+          margin: 0 20rpx;
+          align-self: flex-start;
         }
       }
     }
@@ -186,7 +223,28 @@ const city = ref("泉州");
   }
 }
 .navbar {
-  margin-top: calc(var(--status-bar-height) + 10px);
+  // margin-top: calc(var(--status-bar-height) + 10px);
+  .city {
+    display: flex;
+    align-items: center;
+    margin-left: 20rpx;
+    font-size: 26rpx;
+  }
+  .message {
+    position: relative;
+    image {
+      width: 45rpx;
+      height: 45rpx;
+    }
+    margin-right: 20rpx;
+    .message-count {
+      position: absolute;
+      top: 0;
+      right: 0;
+      color: red;
+      background-color: white;
+    }
+  }
 }
 .mid {
   display: flex;
@@ -199,7 +257,7 @@ const city = ref("泉州");
   align-items: center;
   padding: 0 20rpx;
   background-color: rgba($color: #000000, $alpha: 0.1);
-  height: 65rpx;
-  border-radius: 32.5rpx;
+  height: 55rpx;
+  border-radius: 27.5rpx;
 }
 </style>

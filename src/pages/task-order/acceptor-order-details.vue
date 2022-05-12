@@ -20,8 +20,15 @@
           <view class="pay-lines"></view>
           <view class="pay-details-card">
             <view class="details-i-t">
-              <image src="../../static/logo.png" mode=""></image>
-              <text>华大快帮</text>
+              <image
+                :src="order.demander.avatar"
+                mode=""
+                v-if="order.demander.avatar"
+              ></image>
+              <image src="../../static/logo.png" mode="" v-else></image>
+              <text>{{
+                order.demander.nickname ? order.demander.nickname : "默认昵称"
+              }}</text>
             </view>
             <view class="line"></view>
             <view class="orde-details">
@@ -70,6 +77,9 @@
               <view class="btn" v-if="order.baseOrder.orderStatus == '待发货'">
                 <button class="btn2" @click="open">发货</button>
               </view>
+              <view class="btn" v-if="order.baseOrder.orderStatus == '待确认'">
+                <button class="btn2" @click="open">重新发货</button>
+              </view>
             </view>
           </view>
         </view>
@@ -78,7 +88,8 @@
     <uni-popup ref="popup" type="dialog">
       <uni-popup-dialog
         mode="input"
-        message="成功消息"
+        title="请填写物流单号"
+        placeholder="无需发货则可不填"
         :duration="2000"
         :before-close="true"
         @close="close"
@@ -126,9 +137,9 @@ const getOrder = (id: string) => {
 };
 const ship = (logisticNo: string) => {
   shipOrder(order.value.id, logisticNo).then((res) => {
-    if (res == true) {
+    if (res.operation == "success") {
       uni.showToast({
-        title: "确认成功",
+        title: "发货成功",
         icon: "success",
       });
     }
@@ -136,7 +147,7 @@ const ship = (logisticNo: string) => {
 };
 const cancel = () => {
   cancelOrder(order.value.id).then((res) => {
-    if (res == true) {
+    if (res.operation == "success") {
       uni.showToast({
         title: "取消成功",
         icon: "success",
@@ -165,7 +176,7 @@ onMounted(() => {
     if (upload.value) {
       upload.value?.setFiles(order.value.task.detailsJson.imgs);
     }
-  }, 1000);
+  }, 2000);
 });
 </script>
 

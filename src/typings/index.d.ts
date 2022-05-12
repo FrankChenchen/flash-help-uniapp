@@ -1,3 +1,27 @@
+export interface ChatSession {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  lastMessage: string;
+  lastMessageJSON: TextMessage;
+  checkNum: number;
+  updateTime: string;
+  createTime: string;
+  sender: User;
+}
+export interface ChatHistory {
+  id: string;
+  connectId: string;
+  message: string;
+  messageJSON: TextMessage;
+  receiverId: string;
+  type: string;
+  updateTime: string;
+  createTime: string;
+}
+export interface TextMessage {
+  content: string;
+}
 export interface TaskOrder {
   id: string;
   orderId: string;
@@ -84,7 +108,7 @@ export type R = {
 export type BaseSearch = {
   id: string;
   status: string;
-  userId: number;
+  userId: string;
   pageNum: number;
   pageSize: number;
   startTime: string;

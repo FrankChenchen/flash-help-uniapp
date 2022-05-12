@@ -17,7 +17,7 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationStyle": "custom",
+        "navigationBarTitleText": "华大快帮",
         "onReachBottomDistance": 600
       }
     },
@@ -61,13 +61,15 @@
     {
       "path": "pages/task-order/demander-order-list",
       "style": {
-        "navigationBarTitleText": "我的订单"
+        "navigationBarTitleText": "我的订单",
+        "onReachBottomDistance": 600
       }
     },
     {
       "path": "pages/task-order/acceptor-order-list",
       "style": {
-        "navigationBarTitleText": "我的接单"
+        "navigationBarTitleText": "我的接单",
+        "onReachBottomDistance": 600
       }
     },
     {
@@ -80,6 +82,20 @@
       "path": "pages/task-order/acceptor-order-details",
       "style": {
         "navigationBarTitleText": "订单详情"
+      }
+    },
+    {
+      "path": "pages/chat/chat",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/chat/chat-session",
+      "style": {
+        "navigationBarTitleText": "",
+        "onReachBottomDistance": 600
       }
     }
   ],
