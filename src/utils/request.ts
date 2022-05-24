@@ -1,3 +1,4 @@
+import { wechatLogin } from "@/api/auth";
 import { R } from "../typings";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -27,14 +28,15 @@ const requestWithToken = (
       dataType: "json",
       success: (result) => {
         let data = result.data as R;
-        if (data.code >= 400) {
+        if (data.code != "00000") {
           uni.showToast({
             title: data.msg,
             icon: "none",
           });
         }
-        if (data.code === 403) {
-          uni.navigateTo({ url: "/pages/login/login" });
+        if (data.code === "A0301") {
+          // uni.navigateTo({ url: "/pages/login/login" });
+          wechatLogin();
         } else {
           resolve(data.data);
         }

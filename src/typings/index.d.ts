@@ -3,7 +3,7 @@ export interface ChatSession {
   senderId: string;
   receiverId: string;
   lastMessage: string;
-  lastMessageJSON: TextMessage;
+  lastMessageJSON: Message;
   checkNum: number;
   updateTime: string;
   createTime: string;
@@ -13,13 +13,14 @@ export interface ChatHistory {
   id: string;
   connectId: string;
   message: string;
-  messageJSON: TextMessage;
+  messageJSON: Message;
   receiverId: string;
   type: string;
   updateTime: string;
   createTime: string;
 }
-export interface TextMessage {
+export interface Message {
+  img: string;
   content: string;
 }
 export interface TaskOrder {
@@ -101,7 +102,7 @@ export type Address = {
   deleted: boolean;
 };
 export type R = {
-  code: number;
+  code: string;
   msg: string;
   data: any;
 };

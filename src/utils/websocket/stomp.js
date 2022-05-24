@@ -238,7 +238,6 @@ stomp = (function () {
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       out = this._parseConnect.apply(this, args);
       headers = out[0], this.connectCallback = out[1], errorCallback = out[2];
-      console.log(headers)
       if (typeof this.debug === "function") {
         this.debug("Opening Web Socket...");
       }

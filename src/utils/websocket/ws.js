@@ -134,7 +134,8 @@ class Ws {
 	 */
 	send(destination, message) {
 		if (this.client) {
-			this.client.send(destination, null, message)
+			let token = uni.getStorageSync("token");
+			this.client.send(destination, { token }, message)
 		}
 	}
 }

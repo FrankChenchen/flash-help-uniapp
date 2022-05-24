@@ -10,12 +10,39 @@
           ></image>
           <image src="@/static/icons/user.png" mode="widthFix" v-else></image>
         </view>
-        <text class="message"> {{ history.messageJSON.content }} </text>
+        <view class="message">
+          <view class="text-message" v-if="history.type == '文本'">{{
+            history.messageJSON.content
+          }}</view>
+          <image
+            class="img-message"
+            v-if="history.type == '图片'"
+            :src="history.messageJSON.img"
+            mode="widthFix"
+          >
+          </image>
+        </view>
       </view>
       <view class="chat-row chat-right" v-else>
-        <text class="message">{{ history.messageJSON.content }} </text>
+        <view class="message">
+          <view class="text-message" v-if="history.type == '文本'">{{
+            history.messageJSON.content
+          }}</view>
+          <image
+            class="img-message"
+            v-if="history.type == '图片'"
+            :src="history.messageJSON.img"
+            mode="widthFix"
+          >
+          </image>
+        </view>
         <view class="avatar">
-          <image src="@/static/img/portrait.jpg" mode="widthFix"></image>
+          <image
+            :src="userInfo.avatar"
+            mode="widthFix"
+            v-if="userInfo.avatar"
+          ></image>
+          <image src="@/static/icons/user.png" mode="widthFix" v-else></image>
         </view>
       </view>
     </view>
@@ -26,10 +53,10 @@
     </view>
     <view class="mid">
       <view class="input-view">
-        <input type="text" @confirm="sendMessage" v-model="content" />
+        <input type="text" @confirm="sendTextMessage" v-model="content" />
       </view>
     </view>
-    <view class="right">
+    <view class="right" @click="sendImgMessage">
       <uni-icons type="plus" size="25"></uni-icons>
     </view>
   </view>
@@ -42,16 +69,36 @@ import { listChatHistory } from "@/api/chat";
 import { ref, toRefs } from "vue";
 import ws from "@/utils/websocket/ws";
 import { BaseSearch, ChatHistory, User } from "@/typings";
+import { uploadFile } from "@/api/common";
 let store = userStore();
 let { userInfo } = toRefs(store);
 let receiver = ref<User>();
 
 let content = ref("");
-const sendMessage = () => {
+const sendTextMessage = () => {
   let message = {
     receiverId: receiver.value?.id,
+    type: "文本",
     messageJSON: { content: content.value },
   } as ChatHistory;
+  sendMessage(message);
+};
+const sendImgMessage = () => {
+  let message = {
+    type: "图片",
+    receiverId: receiver.value?.id,
+    messageJSON: { content: "[图片]", img: "" },
+  } as ChatHistory;
+  uni.chooseImage({
+    count: 1,
+    success: async (result) => {
+      let res = await uploadFile(result.tempFilePaths[0]);
+      message.messageJSON.img = res[0];
+      sendMessage(message);
+    },
+  });
+};
+const sendMessage = (message: ChatHistory) => {
   message.message = JSON.stringify(message.messageJSON);
   ws.send("/chat-server/send", JSON.stringify(message));
   histories.value.push(message);
@@ -86,7 +133,6 @@ onLoad(async (ops) => {
   searchVO.userId = receiver.value.id;
   uni.setNavigationBarTitle({ title: receiver.value.nickname });
   loadHistory();
-  ws.connect();
   uni.onSocketOpen(() => {
     ws.subscribe("/user/queue/chat", (message) => {
       console.log(message);
@@ -127,9 +173,14 @@ onLoad(async (ops) => {
     }
     .message {
       background-color: white;
-      word-break: break-all;
       padding: 15rpx;
       border-radius: 10rpx;
+      .text-message {
+        word-break: break-all;
+      }
+      .img-message {
+        width: 120rpx;
+      }
     }
   }
 }

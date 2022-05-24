@@ -2,12 +2,12 @@
   <view class="navbar">
     <uni-nav-bar>
       <block v-slot:left>
-        <view class="city">
+        <!-- <view class="city">
           <view>
             <text class="uni-nav-bar-text">{{ city }}</text>
           </view>
           <uni-icons type="location" color="#666" size="20" />
-        </view>
+        </view> -->
       </block>
       <view class="mid">
         <view class="input-view">
@@ -100,6 +100,7 @@ import { BaseSearch, Task, TaskOrder } from "@/typings";
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { reactive, ref } from "vue";
 import { getCheckNum } from "@/api/chat";
+import ws from "@/utils/websocket/ws";
 let finish = ref(false);
 let searchVO = reactive({
   pageSize: 10,
@@ -158,6 +159,7 @@ const getNum = () => {
   });
 };
 onLoad(() => {
+  ws.connect();
   loadTask();
   getNum();
 });

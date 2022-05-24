@@ -11,13 +11,9 @@ class UniWebSocket {
 		this.closeListener = []
 		this.errorListener = []
 		this.messageListener = []
-		let token = uni.getStorageSync('token')
 		// 创建连接
 		uni.connectSocket({
 			url: url,
-			header: {
-				token: "111"
-			}
 			// protocols: protocols
 		})
 

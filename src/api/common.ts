@@ -1,7 +1,7 @@
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export const uploadFile = (filePath: any) => {
-  let promise = new Promise((resolve, reject) => {
+  let promise = new Promise<string[]>((resolve, reject) => {
     console.log(filePath);
     uni.uploadFile({
       url: baseUrl + "/help/upload",
@@ -11,8 +11,7 @@ export const uploadFile = (filePath: any) => {
       name: "name",
       filePath: filePath,
       success: (res) => {
-        console.log(res);
-        resolve(JSON.parse(res.data));
+        resolve(JSON.parse(res.data).data);
       },
       fail: (result) => {
         console.log(result);

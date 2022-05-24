@@ -94,7 +94,7 @@
     {
       "path": "pages/chat/chat-session",
       "style": {
-        "navigationBarTitleText": "",
+        "navigationBarTitleText": "我的消息",
         "onReachBottomDistance": 600
       }
     }

@@ -71,9 +71,9 @@ export default defineComponent({
       for (let index = 0; index < unUploadFiles.length; index++) {
         let file = unUploadFiles[index];
         file.status = "uploading";
-        let res: any = await uploadFile(file.path);
+        let res = await uploadFile(file.path);
         file.status = "finish";
-        file.path = res.data[0];
+        file.path = res[0];
       }
     },
     removeFile(index: number) {
